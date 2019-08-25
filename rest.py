@@ -27,10 +27,9 @@ class Methods(object):
 
     @cherrypy.tools.json_in()
     @cherrypy.tools.json_out()
-    def POST(self, length=8):
-        return {
-            'POST message': 'Hello World'
-        }
+    def POST(self):
+        input_json = cherrypy.request.json
+        return input_json
 
     @cherrypy.tools.json_in()
     @cherrypy.tools.json_out()
@@ -41,9 +40,7 @@ class Methods(object):
 
     @cherrypy.tools.json_out()
     def DELETE(self):
-        return {
-            'DELETE message': 'Hello World'
-        }
+        raise cherrypy.HTTPError(400, 'Hello World')
 
 
 @cherrypy.expose
