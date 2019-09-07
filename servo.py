@@ -19,6 +19,7 @@ class GPIOHandler(object):
         """
         try:
             GPIO.setmode(GPIO.BOARD)
+            # GPIO.setmode(GPIO.BCM)
             return True
         except Exception as error_message:
             console_log(error_message, LOG_ERROR, self.set_mode.__name__)
@@ -238,5 +239,13 @@ class ServoMotorHandler(object):
 
 
 # region servos
-dict_servo_motors = {}
+dict_servo_motors = {
+    'base': ServoMotorHandler(),
+    'bottom_left': ServoMotorHandler(),
+    'bottom_right': ServoMotorHandler(),
+    'bottom_vertical': ServoMotorHandler(),
+    'claw_vertical': ServoMotorHandler(),
+    'claw_horizontal': ServoMotorHandler(),
+    'claw': ServoMotorHandler()
+}
 # endregion servos
