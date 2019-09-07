@@ -1,5 +1,7 @@
 # region imports
 import cherrypy
+import atexit
+import sys
 
 from globals import *
 
@@ -37,6 +39,13 @@ def main():
     except Exception as error_message:
         console_log(error_message, LOG_ERROR, main.__name__)
         return False
+
+
+@atexit.register
+def at_exit_file():
+    console_log('The cherrypy server has been exited.')
+    cherrypy.engine.stop()
+    sys.exit(0)
 
 
 if __name__ == "__main__":
