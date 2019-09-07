@@ -2,23 +2,58 @@
 
 
 # region console log flags
-LOG_ERROR       =   0x00
-LOG_WARNING     =   0x01
-LOG_SUCCESS     =   0x02
-LOG_INFO        =   0x03
+LOG_ERROR = 0x00
+LOG_WARNING = 0x01
+LOG_SUCCESS = 0x02
+LOG_INFO = 0x03
 # endregion console log flags
 
 
 # region messages color codes
-CODE_RED        =   "\033[1;31;40m"
-CODE_YELLOW     =   "\033[1;33;40m"
-CODE_GREEN      =   "\033[1;32;40m"
-CODE_BLUE       =   "\033[1;34;40m"
-CODE_WHITE      =   "\033[1;37;40m"
+CODE_RED = '\033[1;31;40m'
+CODE_YELLOW = '\033[1;33;40m'
+CODE_GREEN = '\033[1;32;40m'
+CODE_BLUE = '\033[1;34;40m'
+CODE_WHITE = '\033[1;37;40m'
+
+
 # endregion
 
 
 # endregion global variables
+
+
+# region RestErrorMessageHandler
+class RestErrorMessageHandler(object):
+    """
+    This class is used in order to send the error_message back to the client throw the REST server
+    """
+
+    def __init__(self):
+        self.last_error_message = None
+
+    def set_last_error_message(self, error_message):
+        """
+        Description: This method sets saves the last given error message into the \'last_error_message\' local variable
+
+        :param error_message: The last error message given
+        :return: Boolean (True or False)
+        """
+        self.last_error_message = error_message
+
+    def get_last_error_message(self):
+        """
+        Description: This method returns the last given error_message
+
+        :return: Boolean (True or False)
+        """
+        return self.last_error_message
+
+
+rest_error_message_handler = RestErrorMessageHandler()
+
+
+# endregion RestErrorMessageHandler
 
 
 # region global functions
@@ -35,25 +70,34 @@ def console_log(message, priority=None, location=None):
         message = str(message)
 
         if location is None:
-            location = ""
+            location = ''
 
+        rest_error_message = '{rest_error_message}'
         if priority == LOG_ERROR:
-            print("%s\t Error (%s):%s %s" % (CODE_RED, location, CODE_WHITE, message))
-
+            print('%s\t Error (%s):%s %s' % (CODE_RED, location, CODE_WHITE, message))
+            rest_error_message = ('Error(%s): %s' % (location, message))
         elif priority == LOG_WARNING:
-            print("%s\t Warning (%s):%s %s" % (CODE_YELLOW, location, CODE_WHITE, message))
+            print('%s\t Warning (%s):%s %s' % (CODE_YELLOW, location, CODE_WHITE, message))
+            rest_error_message = ('Error(%s): %s' % (location, message))
 
         elif priority == LOG_SUCCESS:
-            print("%s\t Success (%s):%s %s" % (CODE_GREEN, location, CODE_WHITE, message))
+            print('%s\t Success (%s):%s %s' % (CODE_GREEN, location, CODE_WHITE, message))
+            rest_error_message = ('Error(%s): %s' % (location, message))
 
         elif priority == LOG_INFO:
-            print("%s\t Info (%s):%s %s" % (CODE_BLUE, location, CODE_WHITE, message))
+            print('%s\t Info (%s):%s %s' % (CODE_BLUE, location, CODE_WHITE, message))
+            rest_error_message = ('Error(%s): %s' % (location, message))
 
         elif priority is None:
-            print("%s\t %s" % (CODE_WHITE, message))
+            print('%s\t %s' % (CODE_WHITE, message))
+            rest_error_message = message
 
+        rest_error_message_handler.set_last_error_message(rest_error_message)
         return True
 
     except Exception as error_message:
-        print("%s\t Error: %s %s" % (CODE_RED, CODE_WHITE, str(error_message)))
+        print('%s\t Error: %s %s' % (CODE_RED, CODE_WHITE, str(error_message)))
+        rest_error_message = ('Error (console_log): %s' % error_message)
+        rest_error_message_handler.set_last_error_message(rest_error_message)
         return False
+# endregion global functions
