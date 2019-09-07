@@ -78,15 +78,15 @@ def console_log(message, priority=None, location=None):
             rest_error_message = ('Error(%s): %s' % (location, message))
         elif priority == LOG_WARNING:
             print('%s\t Warning (%s):%s %s' % (CODE_YELLOW, location, CODE_WHITE, message))
-            rest_error_message = ('Error(%s): %s' % (location, message))
+            rest_error_message = ('Warning(%s): %s' % (location, message))
 
         elif priority == LOG_SUCCESS:
             print('%s\t Success (%s):%s %s' % (CODE_GREEN, location, CODE_WHITE, message))
-            rest_error_message = ('Error(%s): %s' % (location, message))
+            rest_error_message = ('Success(%s): %s' % (location, message))
 
         elif priority == LOG_INFO:
             print('%s\t Info (%s):%s %s' % (CODE_BLUE, location, CODE_WHITE, message))
-            rest_error_message = ('Error(%s): %s' % (location, message))
+            rest_error_message = ('Info(%s): %s' % (location, message))
 
         elif priority is None:
             print('%s\t %s' % (CODE_WHITE, message))
