@@ -41,7 +41,7 @@ class GPIOHandler(object):
         """
         Description: This method sets a pin to be an \"INPUT\" pin
 
-        :param pin: The GPIO physical pin number
+        :param pin: (Integer) The GPIO physical pin number
         :return: Boolean (True or False)
         """
         try:
@@ -55,7 +55,7 @@ class GPIOHandler(object):
         """
         Description: This method sets a pin to be an \"OUTPUT\" pin
 
-        :param pin: The GPIO physical pin number
+        :param pin: (Integer) The GPIO physical pin number
         :return: Boolean (True or False)
         """
         try:
@@ -69,8 +69,8 @@ class GPIOHandler(object):
         """
         Description: This method sets the pulse-width modulation frequency of the GPIO pin
 
-        :param pin: The GPIO physical pin number
-        :param frequency: The frequency in Hz
+        :param pin: (Integer) The GPIO physical pin number
+        :param frequency: (Float) The frequency in Hz
         :return: Object (The GPIO.PWM object for a certain pin)
         """
         try:
@@ -87,12 +87,26 @@ class ServoMotorHandler(object):
     """
     Description: This class controls the servo motor functions
     """
-    def __init__(self, pin=0, frequency=0, duty_cycle=0):
+    def __init__(self, pin=0, frequency=50, duty_cycle=0, lower_limit=0, upper_limit=0, step=0):
+        """
+        Description: This constructor initializes the servo motor object
+
+        :param pin: (Integer) The GPIO physical pin number
+        :param frequency: (Float) The PWM frequency
+        :param duty_cycle: (Integer: 0 - 100) The PWM duty cycle
+        :param lower_limit: (Float) The lower limit of the PWM time period limit
+        :param upper_limit: (Float) The upper limit of the PWM time period limit
+        :param step: (Float) The step for incrementing / decrementing the PWM duty cycle
+        """
         try:
             self.pin = pin
             self.frequency = frequency
             self.duty_cycle = duty_cycle
             self.pwn_handler = None
+
+            self.lower_limit = lower_limit
+            self.upper_limit = upper_limit
+            self.step = step
             return
 
         except Exception as error_message:
@@ -125,11 +139,11 @@ class ServoMotorHandler(object):
             console_log(error_message, LOG_ERROR, self.set_gpio_pin_pwn.__name__)
             return False
 
-    def set_gpio_pin_change_duty_cycle(self, duty_cycle):
+    def set_gpio_pin_duty_cycle(self, duty_cycle):
         """
         Description: This method updates the PWM handler \"duty cycle\"
 
-        :param duty_cycle: The PWM duty cycle (Integer: 0 - 100)
+        :param duty_cycle: (Integer: 0 - 100) The PWM duty cycle
         :return: Boolean (True or False)
         """
         try:
@@ -138,14 +152,14 @@ class ServoMotorHandler(object):
             return True
 
         except Exception as error_message:
-            console_log(error_message, LOG_ERROR, self.set_gpio_pin_change_duty_cycle.__name__)
+            console_log(error_message, LOG_ERROR, self.set_gpio_pin_duty_cycle.__name__)
             return False
 
     def set_gpio_pin_frequency(self, frequency):
         """
         Description: This method updates the PWM handler \"frequency\"
 
-        :param frequency: The PWM frequency (Integer)
+        :param frequency: (Float) The PWM frequency
         :return: Boolean (True or False)
         """
         try:
@@ -155,6 +169,70 @@ class ServoMotorHandler(object):
 
         except Exception as error_message:
             console_log(error_message, LOG_ERROR, self.set_gpio_pin_frequency.__name__)
+            return False
+
+    def set_gpio_pwm_limits(self, lower_limit=None, upper_limit=None):
+        """
+        Description: This method sets the PWM time period limits
+
+        :param lower_limit: (Float) The lower limit of the PWM time period
+        :param upper_limit: (Float) The upper limit of the PWM time period
+        :return: Boolean (True or False)
+        """
+        try:
+            if lower_limit is not None:
+                self.lower_limit = lower_limit
+
+            if upper_limit is not None:
+                self.upper_limit = upper_limit
+
+            return True
+        except Exception as error_message:
+            console_log(error_message, LOG_ERROR, self.set_gpio_pwm_limits.__name__)
+            return False
+
+    def rotate_left(self):
+        """
+        Description: This method rotated the servo motor to the left side
+
+        :return: Boolean (True or False)
+        """
+        try:
+            pulse_width_time_period = 1000 / self.frequency
+            current_time_period = (self.duty_cycle * pulse_width_time_period) / 100
+
+            if current_time_period - self.step <= self.lower_limit:
+                console_log('The left limit has already been reached', LOG_WARNING, self.rotate_left.__name__)
+                return False
+
+            duty_cycle = ((current_time_period - self.step) * 100) / pulse_width_time_period
+            self.set_gpio_pin_duty_cycle(duty_cycle)
+
+            return True
+        except Exception as error_message:
+            console_log(error_message, LOG_ERROR, self.rotate_left.__name__)
+            return False
+
+    def rotate_right(self):
+        """
+        Description: This method rotated the servo motor to the right side
+
+        :return: Boolean (True or False)
+        """
+        try:
+            pulse_width_time_period = 1000 / self.frequency
+            current_time_period = (self.duty_cycle * pulse_width_time_period) / 100
+
+            if current_time_period + self.step <= self.lower_limit:
+                console_log('The right limit has already been reached', LOG_WARNING, self.rotate_right.__name__)
+                return False
+
+            duty_cycle = ((current_time_period + self.step) * 100) / pulse_width_time_period
+            self.set_gpio_pin_duty_cycle(duty_cycle)
+
+            return True
+        except Exception as error_message:
+            console_log(error_message, LOG_ERROR, self.rotate_left.__name__)
             return False
 # endregion ServoMotor
 
