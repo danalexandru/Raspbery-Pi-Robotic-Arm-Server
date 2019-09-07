@@ -43,9 +43,9 @@ def main():
 
 @atexit.register
 def at_exit_file():
-    console_log('The cherrypy server has been exited.')
+    console_log('The cherrypy server has been shut down.', LOG_SUCCESS)
     cherrypy.engine.stop()
-    sys.exit(0)
+    cherrypy.engine.exit()
 
 
 if __name__ == "__main__":
