@@ -48,6 +48,6 @@ def at_exit_file():
     cherrypy.engine.exit()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
 # endregion main

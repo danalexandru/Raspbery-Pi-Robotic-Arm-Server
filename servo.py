@@ -235,6 +235,16 @@ class ServoMotorHandler(object):
         except Exception as error_message:
             console_log(error_message, LOG_ERROR, self.rotate_left.__name__)
             return False
+
+    def stop_pwm_handler(self):
+        try:
+            self.pwn_handler.stop()
+            GPIOHandler().cleanup()
+
+            return True
+        except Exception as error_message:
+            console_log(error_message, LOG_WARNING, self.stop_pwm_handler.__name__)
+            return False
 # endregion ServoMotor
 
 
