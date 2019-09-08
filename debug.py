@@ -189,7 +189,7 @@ def main():
         if keyboard_input == 'servo':
             servo()
         elif keyboard_input == 'camera':
-            pass
+            camera()
         else:
             return False
 
@@ -209,7 +209,6 @@ def at_exit_file():
     try:
         console_log('The debug file has been exited successfully.', LOG_SUCCESS, at_exit_file.__name__)
         pwm_handler.stop_my_pwm()
-
         return True
     except Exception as error_message:
         console_log(error_message, LOG_ERROR, at_exit_file.__name__)

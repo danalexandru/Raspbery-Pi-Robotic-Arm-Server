@@ -59,14 +59,14 @@ class PiCameraHandler(object):
     def start_recording(self):
         try:
             self.set_entity_name(self.file_format.VIDEO)
-            self.camera_handler.start_recording()
+            self.camera_handler.start_recording(self.entity_name)
         except Exception as error_message:
             console_log(error_message, LOG_ERROR, self.start_recording.__name__)
             return False
 
     def stop_recording(self):
         try:
-            self.camera_handler.stoprecording()
+            self.camera_handler.stop_recording()
         except Exception as error_message:
             console_log(error_message, LOG_ERROR, self.stop_recording.__name__)
             return False
@@ -78,6 +78,7 @@ class PiCameraHandler(object):
         except Exception as error_message:
             console_log(error_message, LOG_ERROR, self.set_recording_time_frame.__name__)
             return False
+
 
 pi_camera_handler = PiCameraHandler()
 # endregion PiCameraHandler
