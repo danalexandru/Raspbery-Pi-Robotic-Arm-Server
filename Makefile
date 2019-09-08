@@ -4,3 +4,6 @@ output:
 
 clean:
 	rm *.pyc
+
+debug:
+	sudo python3 debug.py

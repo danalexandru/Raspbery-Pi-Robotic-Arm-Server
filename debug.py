@@ -5,7 +5,7 @@ This file is a debug file used in order to test the servo motor
 
 # region imports
 # noinspection PyUnresolvedReferences
-import Rpi.GPIO as GPIO
+import RPi.GPIO as GPIO
 import atexit
 from globals import *
 # endregion imports
@@ -19,15 +19,15 @@ class PwmHandler(object):
     def __init__(self):
         try:
             self.my_pwm = None
-            self.pin = 0
-            self.frequency = 0
+            self.pin = 11
+            self.frequency = 50
             self.lower_limit = 1
             self.upper_limit = 2
             self.step = 0.01
 
             pulse_width_time_period = 1000 / self.frequency
             self.duty_cycle = (((self.lower_limit + self.upper_limit) / 2) * 100) / pulse_width_time_period
-
+            console_log('duty cycle = %s' % str(self.duty_cycle), LOG_INFO, self.__init__.__name__)
             return
         except Exception as error_message:
             console_log(error_message, LOG_ERROR, self.__init__.__name__)
@@ -96,6 +96,8 @@ class PwmHandler(object):
                 return False
 
             duty_cycle = (new_position * 100) / pulse_width_time_period
+            self.duty_cycle = duty_cycle
+
             self.my_pwm.ChangeDutyCycle(duty_cycle)
             console_log('Duty cycle = %s) new_position = %s' % (str(self.duty_cycle), str(new_position)),
                         LOG_SUCCESS,
@@ -138,7 +140,7 @@ def main():
                 continue
 
     except Exception as error_message:
-        console_log(error_message, LOG_WARNING, main.__name__)
+        console_log(error_message, LOG_ERROR, main.__name__)
         return False
 
 
