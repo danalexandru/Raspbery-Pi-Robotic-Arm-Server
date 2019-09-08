@@ -1,3 +1,8 @@
+"""
+This file is the main part of the Project. This is the file that is being executed at the start of the cherrypy server
+"""
+
+
 # region imports
 import cherrypy
 import atexit
@@ -12,7 +17,6 @@ from rest import ExitCherryPyServer
 
 
 # region main
-
 def main():
     try:
         cherrypy.engine.exit()
@@ -43,7 +47,7 @@ def main():
 
 @atexit.register
 def at_exit_file():
-    console_log('The cherrypy server has been shut down.', LOG_SUCCESS)
+    console_log('The cherrypy server has been shut down.', LOG_SUCCESS, at_exit_file.__name__)
     cherrypy.engine.stop()
     cherrypy.engine.exit()
 

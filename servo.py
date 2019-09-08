@@ -1,3 +1,7 @@
+"""
+This file has all the methods used to control the servo motors (including all the GPIO handler)
+"""
+
 # region imports
 # noinspection PyUnresolvedReferences
 import Rpi.GPIO as GPIO

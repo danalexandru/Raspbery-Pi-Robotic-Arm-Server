@@ -1,3 +1,7 @@
+"""
+Description: This file has the REST API functionality
+"""
+
 # region imports
 from unittest import loader
 

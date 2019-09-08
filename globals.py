@@ -1,3 +1,7 @@
+"""
+This file has flags and methods that are used all throwout the project
+"""
+
 # region global variables
 
 

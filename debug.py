@@ -1,3 +1,8 @@
+"""
+This file is a debug file used in order to test the servo motor
+"""
+
+
 # region imports
 # noinspection PyUnresolvedReferences
 import Rpi.GPIO as GPIO
@@ -92,7 +97,9 @@ class PwmHandler(object):
 
             duty_cycle = (new_position * 100) / pulse_width_time_period
             self.my_pwm.ChangeDutyCycle(duty_cycle)
-
+            console_log('Duty cycle = %s) new_position = %s' % (str(self.duty_cycle), str(new_position)),
+                        LOG_SUCCESS,
+                        self.set_my_pwm_duty_cycle.__name__)
             return True
         except Exception as error_message:
             console_log(error_message, LOG_ERROR, self.set_my_pwm_duty_cycle.__name__)
@@ -119,7 +126,7 @@ def main():
         pwm_handler.start_my_pwm()
         while True:
             # keyboard_input = input('Increment / Decrement servo? (\u2191, \u2193)')
-            keyboard_input = input('Increment / Decrement servo? (w, s)')
+            keyboard_input = input('%s\t Increment / Decrement servo? (w, s): %s' % (CODE_BLUE, CODE_WHITE))
 
             keyboard_input = keyboard_input.lower()
             console_log(keyboard_input, LOG_INFO, main.__name__)
