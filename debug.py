@@ -1,5 +1,5 @@
 """
-This file is a debug file used in order to test the servo motor
+This file is a debug file used in order to test the servo motor and the image processing
 """
 
 
@@ -7,6 +7,9 @@ This file is a debug file used in order to test the servo motor
 # noinspection PyUnresolvedReferences
 import RPi.GPIO as GPIO
 import atexit
+import time
+
+from camera import pi_camera_handler
 from globals import *
 # endregion imports
 
@@ -86,7 +89,7 @@ class PwmHandler(object):
                     return False
             elif direction == 'right':
                 new_position = current_time_period + self.step
-                if new_position >= self.lower_limit:
+                if new_position >= self.upper_limit:
                     console_log('The right limit has already been reached',
                                 LOG_WARNING,
                                 self.set_my_pwm_duty_cycle.__name__)
@@ -112,8 +115,8 @@ pwm_handler = PwmHandler()
 # endregion PwmHandler
 
 
-# region main
-def main():
+# region servo
+def servo():
     """
     Description: This function has an infinite loop in which the user input is requested at any point in time in order
                 change the servo motor position
@@ -128,7 +131,7 @@ def main():
         pwm_handler.start_my_pwm()
         while True:
             # keyboard_input = input('Increment / Decrement servo? (\u2191, \u2193)')
-            keyboard_input = input('%s\t Increment / Decrement servo? (w, s): %s' % (CODE_BLUE, CODE_WHITE))
+            keyboard_input = input('%s\t Increment / Decrement servo? (\"w\", \"s\"): %s' % (CODE_BLUE, CODE_WHITE))
 
             keyboard_input = keyboard_input.lower()
             console_log(keyboard_input, LOG_INFO, main.__name__)
@@ -139,6 +142,58 @@ def main():
             else:
                 continue
 
+    except Exception as error_message:
+        console_log(error_message, LOG_ERROR, servo.__name__)
+        return False
+# endregion servo
+
+
+# region camera
+def camera():
+    """
+    Description: This function is used to test the functionality of the \"camera\" module
+
+    :return: Boolean (True or False)
+    """
+    try:
+        while True:
+            keyboard_input = input('%s\t Camera functionality (\"image\" / \"video\"): %s' % (CODE_BLUE, CODE_WHITE))
+            keyboard_input = str(keyboard_input).lower()
+
+            if keyboard_input == 'image':
+                pi_camera_handler.capture_image()
+            elif keyboard_input == 'video':
+                pi_camera_handler.start_recording()
+                pi_camera_handler.set_recording_time_frame(10)
+                pi_camera_handler.stop_recording()
+            else:
+                continue
+
+    except Exception as error_message:
+        console_log(error_message, LOG_ERROR, camera.__name__)
+        return False
+# endregion camera
+
+
+# region main
+def main():
+    """
+    Description: This function is used in order to select the component that is going to be debugged
+
+    :return: Boolean (True or False)
+    """
+    try:
+        keyboard_input = input('%s\t Debug Component (\"servo\" / \"camera\"): %s' % (CODE_BLUE, CODE_WHITE))
+        keyboard_input = str(keyboard_input).lower()
+
+        if keyboard_input == 'servo':
+            servo()
+        elif keyboard_input == 'camera':
+            pass
+        else:
+            return False
+
+        return True
     except Exception as error_message:
         console_log(error_message, LOG_ERROR, main.__name__)
         return False
