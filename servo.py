@@ -29,19 +29,6 @@ class GPIOHandler(object):
             console_log(error_message, LOG_ERROR, self.set_mode.__name__)
             return False
 
-    def cleanup(self):
-        """
-        Description This method cleans the memory allocation of any pins used throwout the project (required on exit)
-
-        :return: Boolean (True or False)
-        """
-        try:
-            GPIO.cleanup()
-            return True
-        except Exception as error_message:
-            console_log(error_message, LOG_ERROR, self.cleanup.__name__)
-            return False
-
     def setup_input_pin(self, pin):
         """
         Description: This method sets a pin to be an \"INPUT\" pin
@@ -54,6 +41,19 @@ class GPIOHandler(object):
             return True
         except Exception as error_message:
             console_log(error_message, LOG_ERROR, self.setup_input_pin.__name__)
+            return False
+
+    def cleanup(self):
+        """
+        Description This method cleans the memory allocation of any pins used throwout the project (required on exit)
+
+        :return: Boolean (True or False)
+        """
+        try:
+            GPIO.cleanup()
+            return True
+        except Exception as error_message:
+            console_log(error_message, LOG_ERROR, self.cleanup.__name__)
             return False
 
     def setup_output_pin(self, pin):
@@ -241,6 +241,12 @@ class ServoMotorHandler(object):
             return False
 
     def stop_pwm_handler(self):
+        """
+        Description: This method stops the PWM handler and cleans the memory allocation of any pins used throwout the
+                     project (required on exit)
+
+        :return: Boolean (True or False)
+        """
         try:
             self.pwn_handler.stop()
             GPIOHandler().cleanup()
