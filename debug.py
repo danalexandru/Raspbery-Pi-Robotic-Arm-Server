@@ -183,7 +183,7 @@ def openCV():
     try:
         # openCV_handler = OpenCVHandler()
         openCV_handler.set_debug_mode()
-        openCV_handler.find_chessboard_corners()
+        openCV_handler.find_chessboard_inner_corners()
         openCV_handler.show_image()
 
     except Exception as error_message:

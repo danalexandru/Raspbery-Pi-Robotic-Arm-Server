@@ -126,7 +126,7 @@ class OpenCVHandler(object):
     def __init__(self):
         try:
             self.width = 800
-            self.height = 800
+            self.height = 600
 
             self.image_path = None
             self.title = None
@@ -167,7 +167,7 @@ class OpenCVHandler(object):
         try:
             for inner_corner in self.inner_corners:
                 cv2.circle(self.image,
-                           (inner_corner['x'], inner_corner['y']),
+                           (inner_corner['y'], inner_corner['x']),
                            3,
                            (255, 0, 0),
                            -1)
@@ -181,7 +181,7 @@ class OpenCVHandler(object):
             console_log(error_message, LOG_ERROR, self.show_image.__name__)
             return False
 
-    def find_chessboard_corners(self):
+    def find_chessboard_inner_corners(self):
         """
         Description: This method finds the position of the inner chessboard corners
 
@@ -192,15 +192,50 @@ class OpenCVHandler(object):
             (ret, corners) = cv2.findChessboardCorners(self.image, (7, 7))
 
             for corner in corners:
-                (x, y) = corner.ravel()
+                (y, x) = corner.ravel()
                 self.inner_corners.append({
                     'x': x,
                     'y': y
                 })
 
+            self.sort_chessboard_inner_corners(self.inner_corners)
             return True
         except Exception as error_message:
-            console_log(error_message, LOG_ERROR, self.find_chessboard_corners.__name__)
+            console_log(error_message, LOG_ERROR, self.find_chessboard_inner_corners.__name__)
+            return False
+
+    def sort_chessboard_inner_corners(self, inner_corners):
+        """
+        This function sorts the chessboard inner corners from the top-left corner to the bottom-right corner
+
+        :return: Boolean (True or False)
+        """
+        try:
+            # sort by rows
+            k = False
+            while k is False:
+                k = True
+                for index in range(0, len(inner_corners) - 1):
+                    if inner_corners[index]['x'] > inner_corners[index + 1]['x']:
+                        (inner_corners[index], inner_corners[index + 1]) = \
+                            (inner_corners[index + 1], inner_corners[index])
+                        k = False
+
+            # sort by columns
+            k = False
+            while k is False:
+                k = True
+                for index in range(0, len(inner_corners) - 1):
+                    if inner_corners[index]['x'] >= inner_corners[index + 1]['x'] and \
+                            inner_corners[index]['y'] > inner_corners[index + 1]['y']:
+                        (inner_corners[index], inner_corners[index + 1]) = \
+                            (inner_corners[index + 1], inner_corners[index])
+                        k = False
+
+            self.inner_corners = inner_corners
+            return True
+        except Exception as error_message:
+            console_log(error_message, LOG_ERROR, self.sort_chessboard_inner_corners.__name__)
             return False
 
 
