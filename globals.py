@@ -3,7 +3,7 @@ This file has flags and methods that are used all throwout the project
 """
 
 # region global variables
-
+import sys
 
 # region console log flags
 LOG_ERROR = 0x00
@@ -72,24 +72,25 @@ def console_log(message, priority=None, location=None):
     """
     try:
         message = str(message)
+        line_number = str(sys.exc_info()[-1].tb_lineno)
 
         if location is None:
             location = ''
 
         rest_error_message = '{rest_error_message}'
         if priority == LOG_ERROR:
-            print('%s\t Error (%s):%s %s' % (CODE_RED, location, CODE_WHITE, message))
+            print('%s\t Error (%s:%s):%s %s' % (CODE_RED, location, line_number, CODE_WHITE, message))
             rest_error_message = ('Error(%s): %s' % (location, message))
         elif priority == LOG_WARNING:
-            print('%s\t Warning (%s):%s %s' % (CODE_YELLOW, location, CODE_WHITE, message))
+            print('%s\t Warning (%s:%s):%s %s' % (CODE_YELLOW, location, line_number, CODE_WHITE, message))
             rest_error_message = ('Warning(%s): %s' % (location, message))
 
         elif priority == LOG_SUCCESS:
-            print('%s\t Success (%s):%s %s' % (CODE_GREEN, location, CODE_WHITE, message))
+            print('%s\t Success (%s:%s):%s %s' % (CODE_GREEN, location, line_number, CODE_WHITE, message))
             rest_error_message = ('Success(%s): %s' % (location, message))
 
         elif priority == LOG_INFO:
-            print('%s\t Info (%s):%s %s' % (CODE_BLUE, location, CODE_WHITE, message))
+            print('%s\t Info (%s:%s):%s %s' % (CODE_BLUE, location, line_number, CODE_WHITE, message))
             rest_error_message = ('Info(%s): %s' % (location, message))
 
         elif priority is None:

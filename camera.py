@@ -4,8 +4,9 @@ This file deals with all the image processing part of the project
 
 # region imports
 # noinspection PyUnresolvedReferences
-import picamera
+# import picamera
 import datetime
+import cv2
 
 from enum import Enum
 from globals import *
@@ -13,8 +14,13 @@ from globals import *
 
 
 # region PiCameraHandler
-class PiCameraHandler(object):
+picamera = None
 
+
+class PiCameraHandler(object):
+    """
+    This class is used in order to take an image of the chessboard, or film the chessboard
+    """
     class FileFormat(Enum):
         IMAGE = 1
         VIDEO = 2
@@ -110,3 +116,93 @@ class PiCameraHandler(object):
 
 pi_camera_handler = PiCameraHandler()
 # endregion PiCameraHandler
+
+
+# region OpenCVHandler
+class OpenCVHandler(object):
+    """
+    This class will determine the chess positions on the board
+    """
+    def __init__(self):
+        try:
+            self.width = 800
+            self.height = 800
+
+            self.image_path = None
+            self.title = None
+            self.is_RGB = False
+
+            self.inner_corners = []
+
+            self.image = None
+        except Exception as error_message:
+            console_log(error_message, LOG_ERROR, 'OpenCVHandler')
+
+    def set_debug_mode(self):
+        """
+        Description: This method is used for debug purposes. It calls an image from the \"images\" folder in grayscale
+                     mode
+
+        :return: Boolean (True of False)
+        """
+        try:
+            self.image_path = './images/debug_chessboard.jpg'
+            self.title = 'Debug chessboard'
+            self.is_RGB = False
+
+            self.image = cv2.imread(self.image_path, self.is_RGB)
+            self.image = cv2.resize(self.image, (self.width, self.height))
+
+            return True
+        except Exception as error_message:
+            console_log(error_message, LOG_ERROR, self.set_debug_mode.__name__)
+            return False
+
+    def show_image(self):
+        """
+        Description: This method is used to show an the image image uploaded into the "self.image" handler using openCV
+
+        :return: Boolean (True or False)
+        """
+        try:
+            for inner_corner in self.inner_corners:
+                cv2.circle(self.image,
+                           (inner_corner['x'], inner_corner['y']),
+                           3,
+                           (255, 0, 0),
+                           -1)
+
+            cv2.imshow(self.title, self.image)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+
+            return True
+        except Exception as error_message:
+            console_log(error_message, LOG_ERROR, self.show_image.__name__)
+            return False
+
+    def find_chessboard_corners(self):
+        """
+        Description: This method finds the position of the inner chessboard corners
+
+        :return: Boolean (True or False)
+        """
+        try:
+            self.inner_corners = []
+            (ret, corners) = cv2.findChessboardCorners(self.image, (7, 7))
+
+            for corner in corners:
+                (x, y) = corner.ravel()
+                self.inner_corners.append({
+                    'x': x,
+                    'y': y
+                })
+
+            return True
+        except Exception as error_message:
+            console_log(error_message, LOG_ERROR, self.find_chessboard_corners.__name__)
+            return False
+
+
+openCV_handler = OpenCVHandler()
+# endregion OpenCVHandler

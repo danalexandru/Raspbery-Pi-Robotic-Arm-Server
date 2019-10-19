@@ -5,16 +5,19 @@ This file is a debug file used in order to test the servo motor and the image pr
 
 # region imports
 # noinspection PyUnresolvedReferences
-import RPi.GPIO as GPIO
+# import RPi.GPIO as GPIO
 import atexit
 import time
 
-from camera import pi_camera_handler
+from camera import pi_camera_handler, openCV_handler
 from globals import *
 # endregion imports
 
 
 # region PwmHandler
+GPIO = None
+
+
 class PwmHandler(object):
     """
     This class is used in order to call the PWM handler from the main function
@@ -175,6 +178,20 @@ def camera():
 # endregion camera
 
 
+# region openCV
+def openCV():
+    try:
+        # openCV_handler = OpenCVHandler()
+        openCV_handler.set_debug_mode()
+        openCV_handler.find_chessboard_corners()
+        openCV_handler.show_image()
+
+    except Exception as error_message:
+        console_log(error_message, LOG_ERROR, main.__name__)
+        return False
+# endregion openCV
+
+
 # region main
 def main():
     """
@@ -183,13 +200,18 @@ def main():
     :return: Boolean (True or False)
     """
     try:
-        keyboard_input = input('%s\t Debug Component (\"servo\" / \"camera\"): %s' % (CODE_BLUE, CODE_WHITE))
+        keyboard_input = input('%s\t Debug Component ('
+                               '\"servo\" / '
+                               '\"camera\" / '
+                               '\"opencv\"): %s' % (CODE_BLUE, CODE_WHITE))
         keyboard_input = str(keyboard_input).lower()
 
         if keyboard_input == 'servo':
             servo()
         elif keyboard_input == 'camera':
             camera()
+        elif keyboard_input == 'opencv':
+            openCV()
         else:
             return False
 
