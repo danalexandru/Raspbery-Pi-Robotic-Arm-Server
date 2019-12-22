@@ -198,12 +198,20 @@ def camera():
 
 # region openCV
 def openCV():
+    """
+    This function tests the functionality of the openCV functionality which looks at the chess board in order to find the
+    desired squares
+
+    :returns: Boolean (True or False)
+    """
     try:
         # openCV_handler = OpenCVHandler()
         openCV_handler.set_debug_mode()
         openCV_handler.find_chessboard_inner_corners()
+        openCV_handler.find_chessboard_outer_corners()
         openCV_handler.show_image()
 
+        return True
     except Exception as error_message:
         console.log(error_message, console.LOG_ERROR, main.__name__)
         return False

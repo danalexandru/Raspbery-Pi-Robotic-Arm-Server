@@ -81,8 +81,12 @@ class Console(object):
         :return: Boolean (True of False)
         """
         try:
-            message = str(message)
-            line_number = str(sys.exc_info()[-1].tb_lineno)
+            message = str(message).capitalize()
+
+            if sys.exc_info()[-1] is not None:
+                line_number = str(sys.exc_info()[-1].tb_lineno)
+            else:
+                line_number: ''
 
             if location is None:
                 location = ''

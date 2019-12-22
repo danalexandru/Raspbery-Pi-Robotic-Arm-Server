@@ -133,6 +133,7 @@ class OpenCVHandler(object):
             self.is_RGB = False
 
             self.inner_corners = []
+            self.outer_corners = []
 
             self.image = None
         except Exception as error_message:
@@ -172,6 +173,13 @@ class OpenCVHandler(object):
                            (255, 0, 0),
                            -1)
 
+            for outer_corner in self.outer_corners:
+                cv2.circle(self.image,
+                           (int(outer_corner['y']), int(outer_corner['x'])),
+                           3,
+                           (255, 0, 0),
+                           -1)
+
             cv2.imshow(self.title, self.image)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
@@ -198,16 +206,98 @@ class OpenCVHandler(object):
                     'y': y
                 })
 
-            self.sort_chessboard_inner_corners(self.inner_corners)
+            self.sort_chessboard_corners(self.inner_corners, 'outer_corners')
             return True
         except Exception as error_message:
             console.log(error_message, console.LOG_ERROR, self.find_chessboard_inner_corners.__name__)
             return False
 
-    def sort_chessboard_inner_corners(self, inner_corners):
+    def find_chessboard_outer_corners(self):
+        """
+        This method finds the position of the outer corners chessboard corners
+
+        :return: Boolean (True or False)
+        """
+        try:
+            self.outer_corners = []
+
+            x_mean = []
+            y_mean = []
+
+            first_index = 0
+            last_index = 6
+
+            for i in range(7):
+                x = []
+                y = []
+
+                x_dif = []
+                y_dif = []
+
+                for j in range(7):
+                    x.append(self.inner_corners[i*7 + j]['x'])
+                    y.append(self.inner_corners[i + j*7]['y'])
+
+                for j in range(6):
+                    x_dif.append(abs(x[j + 1] - x[j]))
+                    y_dif.append(abs(y[j + 1] - y[j]))
+
+                x_mean.append(sum(x_dif)/len(x_dif))
+                y_mean.append(sum(y_dif)/len(y_dif))
+
+            # append the 4 extreme corners of the board
+            self.outer_corners.append({
+                'x': self.inner_corners[first_index]['x'] - x_mean[first_index],
+                'y': self.inner_corners[first_index]['y'] - y_mean[first_index]
+            })
+            self.outer_corners.append({
+                'x': self.inner_corners[first_index + last_index]['x'] + x_mean[first_index],
+                'y': self.inner_corners[first_index + last_index]['y'] - y_mean[last_index]
+            })
+            self.outer_corners.append({
+                'x': self.inner_corners[last_index*7]['x'] - x_mean[last_index],
+                'y': self.inner_corners[last_index*7]['y'] + y_mean[first_index]
+            })
+            self.outer_corners.append({
+                'x': self.inner_corners[last_index*8]['x'] + x_mean[last_index],
+                'y': self.inner_corners[last_index*8]['y'] + y_mean[last_index]
+            })
+
+            # append the first row
+            for i in range(7):
+                self.outer_corners.append({
+                    'x': self.inner_corners[i]['x'],
+                    'y': self.inner_corners[i]['y'] - y_mean[i]
+                })
+                self.outer_corners.append({
+                    'x': self.inner_corners[i*7]['x'] - x_mean[i],
+                    'y': self.inner_corners[i]['y']
+                })
+                self.outer_corners.append({
+                    'x': self.inner_corners[i*7 + last_index]['x'] + x_mean[i],
+                    'y': self.inner_corners[i*7 + last_index]['y']
+                })
+                self.outer_corners.append({
+                    'x': self.inner_corners[i + last_index*7]['x'],
+                    'y': self.inner_corners[i + last_index*7]['y'] + y_mean[i]
+                })
+
+            self.sort_chessboard_corners(self.outer_corners, 'outer_corners')
+            for corner in self.outer_corners:
+                corner['x'] = round(corner['x'], 4)
+                corner['y'] = round(corner['y'], 4)
+
+            return True
+        except Exception as error_message:
+            console.log(error_message, console.LOG_ERROR, self.find_chessboard_inner_corners.__name__)
+            return False
+
+    def sort_chessboard_corners(self, corners, list_label=None):
         """
         This function sorts the chessboard inner corners from the top-left corner to the bottom-right corner
 
+        :param corners: (List) The list of corners that needs to be ordered accordingly
+        :param list_label: (String) The list of corners which was sorted ('inner_corners' or 'outer_corners')
         :return: Boolean (True or False)
         """
         try:
@@ -215,27 +305,37 @@ class OpenCVHandler(object):
             k = False
             while k is False:
                 k = True
-                for index in range(0, len(inner_corners) - 1):
-                    if inner_corners[index]['x'] > inner_corners[index + 1]['x']:
-                        (inner_corners[index], inner_corners[index + 1]) = \
-                            (inner_corners[index + 1], inner_corners[index])
+                for index in range(0, len(corners) - 1):
+                    if corners[index]['x'] > corners[index + 1]['x']:
+                        (corners[index], corners[index + 1]) = \
+                            (corners[index + 1], corners[index])
                         k = False
 
             # sort by columns
             k = False
             while k is False:
                 k = True
-                for index in range(0, len(inner_corners) - 1):
-                    if inner_corners[index]['x'] >= inner_corners[index + 1]['x'] and \
-                            inner_corners[index]['y'] > inner_corners[index + 1]['y']:
-                        (inner_corners[index], inner_corners[index + 1]) = \
-                            (inner_corners[index + 1], inner_corners[index])
+                for index in range(0, len(corners) - 1):
+                    if corners[index]['x'] >= corners[index + 1]['x'] and \
+                            corners[index]['y'] > corners[index + 1]['y']:
+                        (corners[index], corners[index + 1]) = \
+                            (corners[index + 1], corners[index])
                         k = False
 
-            self.inner_corners = inner_corners
+            if list_label is None or list_label == 'inner_corners':
+                self.inner_corners = corners
+            elif list_label == 'outer_corners':
+                self.outer_corners = corners
+            else:
+                console.log('Unrecognized list_label %s. It should be either \'inner_corners\' or \'outer_corners\'' %
+                            str(list_label),
+                            console.LOG_WARNING,
+                            self.sort_chessboard_corners.__name__)
+                return False
+
             return True
         except Exception as error_message:
-            console.log(error_message, console.LOG_ERROR, self.sort_chessboard_inner_corners.__name__)
+            console.log(error_message, console.LOG_ERROR, self.sort_chessboard_corners.__name__)
             return False
 
 
