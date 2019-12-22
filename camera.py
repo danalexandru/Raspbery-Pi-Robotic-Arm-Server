@@ -9,7 +9,7 @@ import datetime
 import cv2
 
 from enum import Enum
-from globals import *
+from globals import console
 # endregion imports
 
 
@@ -34,11 +34,11 @@ class PiCameraHandler(object):
             self.file_format = self.FileFormat
 
         except Exception as error_message:
-            console_log(error_message, LOG_ERROR, 'PiCamera')
+            console.log(error_message, console.LOG_ERROR, 'PiCamera')
 
     def set_entity_name(self, file_format):
         """
-        Description: This method sets the name of the file that will be saved, either in the \"images\" or \"videos\"
+        This method sets the name of the file that will be saved, either in the \"images\" or \"videos\"
                      folder, depending on the file format
 
         :param file_format: The file format (taken from the "self.file_format" enum)
@@ -52,17 +52,17 @@ class PiCameraHandler(object):
             elif file_format == self.file_format.VIDEO:
                 self.entity_name = ('./videos/vid_%s.h264' % current_time)
             else:
-                console_log('Unknown file format %s' % str(file_format), LOG_WARNING, self.set_entity_name.__name__)
+                console.log('Unknown file format %s' % str(file_format), console.LOG_WARNING, self.set_entity_name.__name__)
                 return False
 
             return True
         except Exception as error_message:
-            console_log(error_message, LOG_ERROR, self.set_entity_name.__name__)
+            console.log(error_message, console.LOG_ERROR, self.set_entity_name.__name__)
             return False
 
     def capture_image(self):
         """
-        Description: This method takes a picture and in \"jpg\" format and saves it in the \"images\" folder
+        This method takes a picture and in \"jpg\" format and saves it in the \"images\" folder
 
         :return: Boolean (True or False)
         """
@@ -71,12 +71,12 @@ class PiCameraHandler(object):
             self.camera_handler.capture(self.entity_name)
             return True
         except Exception as error_message:
-            console_log(error_message, LOG_ERROR, self.capture_image.__name__)
+            console.log(error_message, console.LOG_ERROR, self.capture_image.__name__)
             return False
 
     def start_recording(self):
         """
-        Description: This method starts the video recording in \"h264\" format
+        This method starts the video recording in \"h264\" format
 
         :return: Boolean (True or False)
         """
@@ -84,24 +84,24 @@ class PiCameraHandler(object):
             self.set_entity_name(self.file_format.VIDEO)
             self.camera_handler.start_recording(self.entity_name)
         except Exception as error_message:
-            console_log(error_message, LOG_ERROR, self.start_recording.__name__)
+            console.log(error_message, console.LOG_ERROR, self.start_recording.__name__)
             return False
 
     def stop_recording(self):
         """
-        Description: This method stops the video recording and saves it in the \"videos\" folder
+        This method stops the video recording and saves it in the \"videos\" folder
 
         :return: Boolean (True or False)
         """
         try:
             self.camera_handler.stop_recording()
         except Exception as error_message:
-            console_log(error_message, LOG_ERROR, self.stop_recording.__name__)
+            console.log(error_message, console.LOG_ERROR, self.stop_recording.__name__)
             return False
 
     def set_recording_time_frame(self, seconds):
         """
-        Description: This method sets the delay until a video recording should stop
+        This method sets the delay until a video recording should stop
 
         :param seconds: The amount of time the video recording should last (in seconds)
         :return: Boolean (True or False)
@@ -110,7 +110,7 @@ class PiCameraHandler(object):
             self.camera_handler.wait_recording(seconds)
             return True
         except Exception as error_message:
-            console_log(error_message, LOG_ERROR, self.set_recording_time_frame.__name__)
+            console.log(error_message, console.LOG_ERROR, self.set_recording_time_frame.__name__)
             return False
 
 
@@ -136,11 +136,11 @@ class OpenCVHandler(object):
 
             self.image = None
         except Exception as error_message:
-            console_log(error_message, LOG_ERROR, 'OpenCVHandler')
+            console.log(error_message, console.LOG_ERROR, 'OpenCVHandler')
 
     def set_debug_mode(self):
         """
-        Description: This method is used for debug purposes. It calls an image from the \"images\" folder in grayscale
+        This method is used for debug purposes. It calls an image from the \"images\" folder in grayscale
                      mode
 
         :return: Boolean (True of False)
@@ -155,12 +155,12 @@ class OpenCVHandler(object):
 
             return True
         except Exception as error_message:
-            console_log(error_message, LOG_ERROR, self.set_debug_mode.__name__)
+            console.log(error_message, console.LOG_ERROR, self.set_debug_mode.__name__)
             return False
 
     def show_image(self):
         """
-        Description: This method is used to show an the image image uploaded into the "self.image" handler using openCV
+        This method is used to show an the image image uploaded into the "self.image" handler using openCV
 
         :return: Boolean (True or False)
         """
@@ -178,12 +178,12 @@ class OpenCVHandler(object):
 
             return True
         except Exception as error_message:
-            console_log(error_message, LOG_ERROR, self.show_image.__name__)
+            console.log(error_message, console.LOG_ERROR, self.show_image.__name__)
             return False
 
     def find_chessboard_inner_corners(self):
         """
-        Description: This method finds the position of the inner chessboard corners
+        This method finds the position of the inner chessboard corners
 
         :return: Boolean (True or False)
         """
@@ -201,7 +201,7 @@ class OpenCVHandler(object):
             self.sort_chessboard_inner_corners(self.inner_corners)
             return True
         except Exception as error_message:
-            console_log(error_message, LOG_ERROR, self.find_chessboard_inner_corners.__name__)
+            console.log(error_message, console.LOG_ERROR, self.find_chessboard_inner_corners.__name__)
             return False
 
     def sort_chessboard_inner_corners(self, inner_corners):
@@ -235,7 +235,7 @@ class OpenCVHandler(object):
             self.inner_corners = inner_corners
             return True
         except Exception as error_message:
-            console_log(error_message, LOG_ERROR, self.sort_chessboard_inner_corners.__name__)
+            console.log(error_message, console.LOG_ERROR, self.sort_chessboard_inner_corners.__name__)
             return False
 
 

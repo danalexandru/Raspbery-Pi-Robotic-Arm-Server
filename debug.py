@@ -2,7 +2,6 @@
 This file is a debug file used in order to test the servo motor and the image processing
 """
 
-
 # region imports
 # noinspection PyUnresolvedReferences
 # import RPi.GPIO as GPIO
@@ -10,7 +9,8 @@ import atexit
 import time
 
 from camera import pi_camera_handler, openCV_handler
-from globals import *
+from globals import console
+
 # endregion imports
 
 
@@ -22,6 +22,7 @@ class PwmHandler(object):
     """
     This class is used in order to call the PWM handler from the main function
     """
+
     def __init__(self):
         try:
             self.my_pwm = None
@@ -33,15 +34,15 @@ class PwmHandler(object):
 
             pulse_width_time_period = 1000 / self.frequency
             self.duty_cycle = (((self.lower_limit + self.upper_limit) / 2) * 100) / pulse_width_time_period
-            console_log('duty cycle = %s' % str(self.duty_cycle), LOG_INFO, self.__init__.__name__)
+            console.log('duty cycle = %s' % str(self.duty_cycle), console.LOG_INFO, self.__init__.__name__)
             return
         except Exception as error_message:
-            console_log(error_message, LOG_ERROR, self.__init__.__name__)
+            console.log(error_message, console.LOG_ERROR, self.__init__.__name__)
             return
 
     def start_my_pwm(self, pin=11, frequency=50):
         """
-        Description: This method initializes the PWM handler
+        This method initializes the PWM handler
 
         :param pin: The GPIO servo pin number
         :param frequency: The GPIO PWM frequency
@@ -55,12 +56,12 @@ class PwmHandler(object):
             self.my_pwm.start(0)
             return True
         except Exception as error_message:
-            console_log(error_message, LOG_ERROR, self.start_my_pwm.__name__)
+            console.log(error_message, console.LOG_ERROR, self.start_my_pwm.__name__)
             return False
 
     def stop_my_pwm(self):
         """
-        Description: This method stops the PWM method and cleans the GPIO pins setup
+        This method stops the PWM method and cleans the GPIO pins setup
 
         :return: Boolean (True of False)
         """
@@ -69,12 +70,12 @@ class PwmHandler(object):
             GPIO.cleanup()
             return True
         except Exception as error_message:
-            console_log(error_message, LOG_ERROR, self.stop_my_pwm.__name__)
+            console.log(error_message, console.LOG_ERROR, self.stop_my_pwm.__name__)
             return False
 
     def set_my_pwm_duty_cycle(self, direction):
         """
-        Description: This methods rotates the servo motor to the left / right
+        This methods rotates the servo motor to the left / right
 
         :param direction: (String) The direction of rotation (to the \"left\" / \"right\"
         :return: Boolean (True or False)
@@ -86,43 +87,46 @@ class PwmHandler(object):
             if direction == 'left':
                 new_position = current_time_period - self.step
                 if new_position <= self.lower_limit:
-                    console_log('The left limit has already been reached',
-                                LOG_WARNING,
+                    console.log('The left limit has already been reached',
+                                console.LOG_WARNING,
                                 self.set_my_pwm_duty_cycle.__name__)
                     return False
             elif direction == 'right':
                 new_position = current_time_period + self.step
                 if new_position >= self.upper_limit:
-                    console_log('The right limit has already been reached',
-                                LOG_WARNING,
+                    console.log('The right limit has already been reached',
+                                console.LOG_WARNING,
                                 self.set_my_pwm_duty_cycle.__name__)
                     return False
             else:
-                console_log('Unknown direction %s' % direction, LOG_WARNING, self.set_my_pwm_duty_cycle.__name__)
+                console.log('Unknown direction %s' % direction, console.LOG_WARNING,
+                            self.set_my_pwm_duty_cycle.__name__)
                 return False
 
             duty_cycle = (new_position * 100) / pulse_width_time_period
             self.duty_cycle = duty_cycle
 
             self.my_pwm.ChangeDutyCycle(duty_cycle)
-            console_log('Duty cycle = %s) new_position = %s' % (str(self.duty_cycle), str(new_position)),
-                        LOG_SUCCESS,
+            console.log('Duty cycle = %s) new_position = %s' % (str(self.duty_cycle), str(new_position)),
+                        console.LOG_SUCCESS,
                         self.set_my_pwm_duty_cycle.__name__)
             return True
         except Exception as error_message:
-            console_log(error_message, LOG_ERROR, self.set_my_pwm_duty_cycle.__name__)
+            console.log(error_message, console.LOG_ERROR, self.set_my_pwm_duty_cycle.__name__)
             return False
 
 
 pwm_handler = PwmHandler()
+
+
 # endregion PwmHandler
 
 
 # region servo
 def servo():
     """
-    Description: This function has an infinite loop in which the user input is requested at any point in time in order
-                change the servo motor position
+    This function has an infinite loop in which the user input is requested at any point in time in order
+    change the servo motor position
 
     :return: Boolean (True or False)
     """
@@ -134,10 +138,15 @@ def servo():
         pwm_handler.start_my_pwm()
         while True:
             # keyboard_input = input('Increment / Decrement servo? (\u2191, \u2193)')
-            keyboard_input = input('%s\t Increment / Decrement servo? (\"w\", \"s\"): %s' % (CODE_BLUE, CODE_WHITE))
+            keyboard_input = input('%s\t Increment / Decrement servo? (\"w\", \"s\"): %s' %
+                                   (
+                                       console.get_color_code(console.LOG_INFO),
+                                       console.get_color_code(console.LOG_DEFAULT)
+                                   )
+                                   )
 
             keyboard_input = keyboard_input.lower()
-            console_log(keyboard_input, LOG_INFO, main.__name__)
+            console.log(keyboard_input, console.LOG_INFO, main.__name__)
             if keyboard_input == 'w':
                 pwm_handler.set_my_pwm_duty_cycle('right')
             elif keyboard_input == 's':
@@ -146,21 +155,28 @@ def servo():
                 continue
 
     except Exception as error_message:
-        console_log(error_message, LOG_ERROR, servo.__name__)
+        console.log(error_message, console.LOG_ERROR, servo.__name__)
         return False
+
+
 # endregion servo
 
 
 # region camera
 def camera():
     """
-    Description: This function is used to test the functionality of the \"camera\" module
+    This function is used to test the functionality of the \"camera\" module
 
     :return: Boolean (True or False)
     """
     try:
         while True:
-            keyboard_input = input('%s\t Camera functionality (\"image\" / \"video\"): %s' % (CODE_BLUE, CODE_WHITE))
+            keyboard_input = input('%s\t Camera functionality (\"image\" / \"video\"): %s' %
+                                   (
+                                       console.get_color_code(console.LOG_INFO),
+                                       console.get_color_code(console.LOG_DEFAULT)
+                                   )
+                                   )
             keyboard_input = str(keyboard_input).lower()
 
             if keyboard_input == 'image':
@@ -173,8 +189,10 @@ def camera():
                 continue
 
     except Exception as error_message:
-        console_log(error_message, LOG_ERROR, camera.__name__)
+        console.log(error_message, console.LOG_ERROR, camera.__name__)
         return False
+
+
 # endregion camera
 
 
@@ -187,15 +205,17 @@ def openCV():
         openCV_handler.show_image()
 
     except Exception as error_message:
-        console_log(error_message, LOG_ERROR, main.__name__)
+        console.log(error_message, console.LOG_ERROR, main.__name__)
         return False
+
+
 # endregion openCV
 
 
 # region main
 def main():
     """
-    Description: This function is used in order to select the component that is going to be debugged
+    This function is used in order to select the component that is going to be debugged
 
     :return: Boolean (True or False)
     """
@@ -203,7 +223,12 @@ def main():
         keyboard_input = input('%s\t Debug Component ('
                                '\"servo\" / '
                                '\"camera\" / '
-                               '\"opencv\"): %s' % (CODE_BLUE, CODE_WHITE))
+                               '\"opencv\"): %s' % (
+                                   console.get_color_code(console.LOG_INFO),
+                                   console.get_color_code(console.LOG_DEFAULT)
+                               )
+                               )
+
         keyboard_input = str(keyboard_input).lower()
 
         if keyboard_input == 'servo':
@@ -217,23 +242,23 @@ def main():
 
         return True
     except Exception as error_message:
-        console_log(error_message, LOG_ERROR, main.__name__)
+        console.log(error_message, console.LOG_ERROR, main.__name__)
         return False
 
 
 @atexit.register
 def at_exit_file():
     """
-    Description: This function is called at the exit of the file
+    This function is called at the exit of the file
 
     :return: Boolean (True or False)
     """
     try:
-        console_log('The debug file has been exited successfully.', LOG_SUCCESS, at_exit_file.__name__)
+        console.log('The debug file has been exited successfully.', console.LOG_SUCCESS, at_exit_file.__name__)
         pwm_handler.stop_my_pwm()
         return True
     except Exception as error_message:
-        console_log(error_message, LOG_ERROR, at_exit_file.__name__)
+        console.log(error_message, console.LOG_ERROR, at_exit_file.__name__)
         return False
 
 

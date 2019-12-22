@@ -8,7 +8,7 @@ import cherrypy
 import atexit
 import sys
 
-from globals import *
+from globals import console
 
 from rest import Root
 from rest import Methods
@@ -41,13 +41,13 @@ def main():
         cherrypy.engine.block()
 
     except Exception as error_message:
-        console_log(error_message, LOG_ERROR, main.__name__)
+        console.log(error_message, console.LOG_ERROR, main.__name__)
         return False
 
 
 @atexit.register
 def at_exit_file():
-    console_log('The cherrypy server has been shut down.', LOG_SUCCESS, at_exit_file.__name__)
+    console.log('The cherrypy server has been shut down.', console.LOG_SUCCESS, at_exit_file.__name__)
     cherrypy.engine.stop()
     cherrypy.engine.exit()
 

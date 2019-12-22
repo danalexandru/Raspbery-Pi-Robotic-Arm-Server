@@ -8,7 +8,7 @@ from unittest import loader
 import cherrypy
 import sys
 
-from globals import *
+from globals import console, rest_error_message_handler
 # endregion imports
 
 
