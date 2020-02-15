@@ -132,11 +132,13 @@ class OpenCVHandler(object):
             self.title = None
             self.is_RGB = False
 
+            self.image = None
+
             self.inner_corners = []
             self.outer_corners = []
             self.all_corners = []
 
-            self.image = None
+            self.chessboard_positions = []
 
             self.sort_tolerance = 1
         except Exception as error_message:
@@ -295,6 +297,8 @@ class OpenCVHandler(object):
     def find_chessboard_all_corners(self):
         """
         This method takes the inner corners and outer corners found previously and appends them into the same list
+
+        :return: Boolean (True or False)
         """
         try:
             # append first row
@@ -313,6 +317,7 @@ class OpenCVHandler(object):
             for i in range(9):
                 self.all_corners.append(self.outer_corners[i + 23])
 
+            return True
         except Exception as error_message:
             console.log(error_message, console.LOG_ERROR, self.find_chessboard_all_corners.__name__)
             return False
@@ -363,6 +368,30 @@ class OpenCVHandler(object):
             console.log(error_message, console.LOG_ERROR, self.sort_chessboard_corners.__name__)
             return False
 
+    def get_chessboard_positions_location(self):
+        """
+        This method used the all corners parameter in order to get the location of every square from the chessboard
+
+        :return: Boolean (True or False)
+        """
+        try:
+            for i in range(8):
+                current_row = []
+                for j in range(8):
+                    current_row.append({
+                        'upper_left': self.all_corners[i*9 + j],
+                        'upper_right': self.all_corners[i*9 + j + 1],
+                        'lower_left': self.all_corners[(i + 1)*9 + j],
+                        'lower_right': self.all_corners[(i + 1)*9 + j + 1]
+                    })
+
+                self.chessboard_positions.append(current_row)
+
+            return True
+        except Exception as error_message:
+            console.log(error_message, console.LOG_ERROR, self.get_chessboard_positions_location.__name__)
+            return False
+
 
 openCV_handler = OpenCVHandler()
 # endregion OpenCVHandler
@@ -378,7 +407,7 @@ def get_mouse_position(event, x, y, flags, param):
     :param y: (Integer) The current Y position on the image
     :param flags: -
     :param param: -
-    :returns: (Boolean) True or False
+    :returns: Boolean (True or False)
     """
     try:
         if event == cv2.EVENT_LBUTTONDOWN:
