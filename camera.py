@@ -392,6 +392,37 @@ class OpenCVHandler(object):
             console.log(error_message, console.LOG_ERROR, self.get_chessboard_positions_location.__name__)
             return False
 
+    def highlight_position(self, row, col):
+        """
+        This method highlights a position on the chessboard
+
+        :param row: (Integer) The x chessboard position (Values: 0 - 7)
+        :param col: (Integer) The y chessboard position(Values: 0 - 7)
+        :return: Boolean (True or False)
+        """
+        try:
+            if row not in range(8):
+                console.log('Invalid %s value for \'row\'. It should be between [0 - 7].' % row,
+                            console.LOG_WARNING,
+                            self.highlight_position.__name__)
+                return False
+
+            if col not in range(8):
+                console.log('Invalid %s value for \'col\'. It should be between [0 - 7].' % col,
+                            console.LOG_WARNING,
+                            self.highlight_position.__name__)
+                return False
+
+            high_pos = self.chessboard_positions[row][col]
+            cv2.rectangle(self.image,
+                          (int(high_pos['lower_left']['x']), int(high_pos['lower_left']['y'])),
+                          (int(high_pos['upper_right']['x']), int(high_pos['upper_right']['y'])),
+                          (255, 0, 0),
+                          3)
+        except Exception as error_message:
+            console.log(error_message, console.LOG_ERROR, self.highlight_position.__name__)
+            return False
+
 
 openCV_handler = OpenCVHandler()
 # endregion OpenCVHandler
