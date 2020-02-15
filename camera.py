@@ -136,6 +136,8 @@ class OpenCVHandler(object):
             self.outer_corners = []
 
             self.image = None
+
+            self.sort_tolerance = 1
         except Exception as error_message:
             console.log(error_message, console.LOG_ERROR, 'OpenCVHandler')
 
@@ -168,22 +170,26 @@ class OpenCVHandler(object):
         try:
             for inner_corner in self.inner_corners:
                 cv2.circle(self.image,
-                           (inner_corner['y'], inner_corner['x']),
+                           (inner_corner['x'], inner_corner['y']),
                            3,
                            (255, 0, 0),
                            -1)
 
             for outer_corner in self.outer_corners:
                 cv2.circle(self.image,
-                           (int(outer_corner['y']), int(outer_corner['x'])),
+                           (int(outer_corner['x']), int(outer_corner['y'])),
                            3,
                            (255, 0, 0),
                            -1)
 
-            cv2.imshow(self.title, self.image)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+            while True:
+                cv2.imshow(self.title, self.image)
+                cv2.setMouseCallback(self.title, get_mouse_position)
+                k = cv2.waitKey(0)
+                if k == -1:
+                    break
 
+            cv2.destroyAllWindows()
             return True
         except Exception as error_message:
             console.log(error_message, console.LOG_ERROR, self.show_image.__name__)
@@ -200,13 +206,13 @@ class OpenCVHandler(object):
             (ret, corners) = cv2.findChessboardCorners(self.image, (7, 7))
 
             for corner in corners:
-                (y, x) = corner.ravel()
+                (x, y) = corner.ravel()
                 self.inner_corners.append({
                     'x': x,
                     'y': y
                 })
 
-            self.sort_chessboard_corners(self.inner_corners, 'outer_corners')
+            self.sort_chessboard_corners(self.inner_corners, 'inner_corners')
             return True
         except Exception as error_message:
             console.log(error_message, console.LOG_ERROR, self.find_chessboard_inner_corners.__name__)
@@ -306,7 +312,7 @@ class OpenCVHandler(object):
             while k is False:
                 k = True
                 for index in range(0, len(corners) - 1):
-                    if corners[index]['x'] > corners[index + 1]['x']:
+                    if corners[index]['y'] > corners[index + 1]['y']:
                         (corners[index], corners[index + 1]) = \
                             (corners[index + 1], corners[index])
                         k = False
@@ -316,8 +322,8 @@ class OpenCVHandler(object):
             while k is False:
                 k = True
                 for index in range(0, len(corners) - 1):
-                    if corners[index]['x'] >= corners[index + 1]['x'] and \
-                            corners[index]['y'] > corners[index + 1]['y']:
+                    if abs(corners[index]['y'] - corners[index + 1]['y']) <= self.sort_tolerance and \
+                            corners[index]['x'] > corners[index + 1]['x']:
                         (corners[index], corners[index + 1]) = \
                             (corners[index + 1], corners[index])
                         k = False
@@ -341,3 +347,26 @@ class OpenCVHandler(object):
 
 openCV_handler = OpenCVHandler()
 # endregion OpenCVHandler
+
+
+# region local functions
+def get_mouse_position(event, x, y, flags, param):
+    """
+    This function prints the current mouse position on the image
+
+    :param event: (Object) The current event that was performed using the mouse
+    :param x: (Integer) The current X position on the image
+    :param y: (Integer) The current Y position on the image
+    :param flags: -
+    :param param: -
+    :returns: (Boolean) True or False
+    """
+    try:
+        if event == cv2.EVENT_LBUTTONDOWN:
+            console.log('Mouse position: (%d, %d)' % (x, y), console.LOG_INFO, get_mouse_position.__name__)
+
+        return True
+    except Exception as error_message:
+        console.log(error_message, console.LOG_ERROR, get_mouse_position.__name__)
+        return False
+# endregion local functions

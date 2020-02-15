@@ -86,7 +86,7 @@ class Console(object):
             if sys.exc_info()[-1] is not None:
                 line_number = str(sys.exc_info()[-1].tb_lineno)
             else:
-                line_number: ''
+                line_number = ''
 
             if location is None:
                 location = ''
