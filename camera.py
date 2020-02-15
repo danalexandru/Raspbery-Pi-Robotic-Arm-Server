@@ -134,6 +134,7 @@ class OpenCVHandler(object):
 
             self.inner_corners = []
             self.outer_corners = []
+            self.all_corners = []
 
             self.image = None
 
@@ -168,16 +169,9 @@ class OpenCVHandler(object):
         :return: Boolean (True or False)
         """
         try:
-            for inner_corner in self.inner_corners:
+            for corner in self.all_corners:
                 cv2.circle(self.image,
-                           (inner_corner['x'], inner_corner['y']),
-                           3,
-                           (255, 0, 0),
-                           -1)
-
-            for outer_corner in self.outer_corners:
-                cv2.circle(self.image,
-                           (int(outer_corner['x']), int(outer_corner['y'])),
+                           (int(corner['x']), int(corner['y'])),
                            3,
                            (255, 0, 0),
                            -1)
@@ -296,6 +290,31 @@ class OpenCVHandler(object):
             return True
         except Exception as error_message:
             console.log(error_message, console.LOG_ERROR, self.find_chessboard_inner_corners.__name__)
+            return False
+
+    def find_chessboard_all_corners(self):
+        """
+        This method takes the inner corners and outer corners found previously and appends them into the same list
+        """
+        try:
+            # append first row
+            for i in range(9):
+                self.all_corners.append(self.outer_corners[i])
+
+            # append every row except the last one
+            for i in range(7):
+                self.all_corners.append(self.outer_corners[9 + 2*i])
+
+                for j in range(7):
+                    self.all_corners.append(self.inner_corners[i*7 + j])
+
+                self.all_corners.append(self.outer_corners[9 + 2*i + 1])
+
+            for i in range(9):
+                self.all_corners.append(self.outer_corners[i + 23])
+
+        except Exception as error_message:
+            console.log(error_message, console.LOG_ERROR, self.find_chessboard_all_corners.__name__)
             return False
 
     def sort_chessboard_corners(self, corners, list_label=None):

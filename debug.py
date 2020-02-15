@@ -209,6 +209,7 @@ def openCV():
         openCV_handler.set_debug_mode()
         openCV_handler.find_chessboard_inner_corners()
         openCV_handler.find_chessboard_outer_corners()
+        openCV_handler.find_chessboard_all_corners()
         openCV_handler.show_image()
 
         return True
