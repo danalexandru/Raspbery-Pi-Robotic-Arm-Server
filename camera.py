@@ -277,7 +277,7 @@ class OpenCVHandler(object):
                 })
                 self.outer_corners.append({
                     'x': self.inner_corners[i*7]['x'] - x_mean[i],
-                    'y': self.inner_corners[i]['y']
+                    'y': self.inner_corners[i*7]['y']
                 })
                 self.outer_corners.append({
                     'x': self.inner_corners[i*7 + last_index]['x'] + x_mean[i],
