@@ -8,6 +8,7 @@ from unittest import loader
 import cherrypy
 import sys
 
+from obs import methods_handler
 from globals import console, rest_error_message_handler
 # endregion imports
 
@@ -32,8 +33,17 @@ class Methods(object):
     @cherrypy.tools.json_in()
     @cherrypy.tools.json_out()
     def POST(self):
-        input_json = cherrypy.request.json
-        return input_json
+        try:
+            input_json = cherrypy.request.json
+
+            if methods_handler.interpret_json(input_json) is True:
+                return True
+            else:
+                raise cherrypy.HTTPError(400, rest_error_message_handler.get_last_error_message())
+
+        except Exception as error_message:
+            console.log(error_message, console.LOG_ERROR)
+            raise cherrypy.HTTPError(400, str(rest_error_message_handler.get_last_error_message()))
 
     @cherrypy.tools.json_in()
     @cherrypy.tools.json_out()
@@ -57,4 +67,3 @@ class ExitCherryPyServer(object):
             'exit': sys.exit(0)
         }
 # endregion Methods
-

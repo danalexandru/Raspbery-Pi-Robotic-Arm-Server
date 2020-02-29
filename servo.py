@@ -84,6 +84,8 @@ class GPIOHandler(object):
             console.log(error_message, console.LOG_ERROR, self.set_gpio_pin_pwm.__name__)
             return False
 
+
+gpio_handler = GPIOHandler()
 # endregion GPIOHandler
 
 
@@ -125,7 +127,7 @@ class ServoMotorHandler(object):
         :return: Boolean (True or False)
         """
         try:
-            GPIOHandler().setup_output_pin(self.pin)
+            gpio_handler.setup_output_pin(self.pin)
             return True
         except Exception as error_message:
             console.log(error_message, console.LOG_ERROR, self.initialize_gpio_pin_mode.__name__)
@@ -138,7 +140,7 @@ class ServoMotorHandler(object):
         :return: Boolean (True or False)
         """
         try:
-            self.pwn_handler = GPIOHandler().set_gpio_pin_pwm(self.pin, self.frequency)
+            self.pwn_handler = gpio_handler.set_gpio_pin_pwm(self.pin, self.frequency)
             return True
         except Exception as error_message:
             console.log(error_message, console.LOG_ERROR, self.set_gpio_pin_pwn.__name__)
@@ -249,7 +251,7 @@ class ServoMotorHandler(object):
         """
         try:
             self.pwn_handler.stop()
-            GPIOHandler().cleanup()
+            gpio_handler.cleanup()
 
             return True
         except Exception as error_message:
@@ -260,12 +262,12 @@ class ServoMotorHandler(object):
 
 # region servos
 dict_servo_motors = {
-    'base': ServoMotorHandler(),
-    'bottom_left': ServoMotorHandler(),
-    'bottom_right': ServoMotorHandler(),
-    'bottom_vertical': ServoMotorHandler(),
-    'claw_vertical': ServoMotorHandler(),
-    'claw_horizontal': ServoMotorHandler(),
-    'claw': ServoMotorHandler()
+    'base': ServoMotorHandler(0, 50),
+    'bottom_left': ServoMotorHandler(0, 50),
+    'bottom_right': ServoMotorHandler(0, 50),
+    'bottom_vertical': ServoMotorHandler(0, 50),
+    'claw_vertical': ServoMotorHandler(0, 50),
+    'claw_horizontal': ServoMotorHandler(0, 50),
+    'claw': ServoMotorHandler(0, 50)
 }
 # endregion servos

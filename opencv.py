@@ -1,3 +1,7 @@
+"""
+This file deals with all the image processing part of the project
+"""
+
 # region imports
 import datetime
 import cv2

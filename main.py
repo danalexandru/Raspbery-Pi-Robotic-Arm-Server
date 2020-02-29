@@ -10,9 +10,7 @@ import sys
 
 from globals import console
 
-from rest import Root
-from rest import Methods
-from rest import ExitCherryPyServer
+from rest import Root, Methods, ExitCherryPyServer
 # endregion imports
 
 
