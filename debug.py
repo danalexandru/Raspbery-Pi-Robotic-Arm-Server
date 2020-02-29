@@ -8,7 +8,8 @@ This file is a debug file used in order to test the servo motor and the image pr
 import atexit
 import time
 
-from camera import pi_camera_handler, openCV_handler
+from camera import pi_camera_handler
+from opencv import openCV_handler
 from globals import console
 
 # endregion imports
