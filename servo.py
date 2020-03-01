@@ -94,7 +94,7 @@ class ServoMotorHandler(object):
     """
     This class controls the servo motor functions
     """
-    def __init__(self, pin=0, frequency=50, duty_cycle=0, lower_limit=0, upper_limit=0, step=0):
+    def __init__(self, pin=0, frequency=50, duty_cycle=5, lower_limit=2, upper_limit=10, step=0.1):
         """
         This constructor initializes the servo motor object
 
@@ -262,12 +262,12 @@ class ServoMotorHandler(object):
 
 # region servos
 dict_servo_motors = {
-    'base': ServoMotorHandler(0, 50),
-    'bottom_left': ServoMotorHandler(0, 50),
-    'bottom_right': ServoMotorHandler(0, 50),
-    'bottom_vertical': ServoMotorHandler(0, 50),
-    'claw_vertical': ServoMotorHandler(0, 50),
-    'claw_horizontal': ServoMotorHandler(0, 50),
-    'claw': ServoMotorHandler(0, 50)
+    'base': ServoMotorHandler(pin=13, frequency=50, duty_cycle=5, lower_limit=2, upper_limit=10, step=0.1),
+    'bottom_left': ServoMotorHandler(pin=3, frequency=50, duty_cycle=5, lower_limit=2, upper_limit=10, step=0.1),
+    'bottom_right': ServoMotorHandler(pin=15, frequency=50, duty_cycle=5, lower_limit=2, upper_limit=10, step=0.1),
+    'bottom_vertical': ServoMotorHandler(pin=11, frequency=50, duty_cycle=5, lower_limit=2, upper_limit=10, step=0.1),
+    'claw_vertical': ServoMotorHandler(pin=7, frequency=50, duty_cycle=5, lower_limit=2, upper_limit=10, step=0.1),
+    'claw_left': ServoMotorHandler(pin=5, frequency=50, duty_cycle=5, lower_limit=2, upper_limit=10, step=0.1),
+    'claw': ServoMotorHandler(pin=0, frequency=50, duty_cycle=5, lower_limit=2, upper_limit=10, step=0.1)
 }
 # endregion servos
