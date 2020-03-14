@@ -121,7 +121,7 @@ class ServoMotorHandler(object):
             self.upper_limit = upper_limit
             self.step = step
 
-            self.dict_duty_cycle_consts = {
+            self.dict_duty_cycle_xy_consts = {
                 'upper': {
                     'left': {
                         'x': 0,
@@ -143,6 +143,11 @@ class ServoMotorHandler(object):
                     }
                 },
                 'percentage': 1 / 7
+            }
+
+            self.duty_cycle_z_consts = {
+                'upper': 0,
+                'lower': 0
             }
 
             return
@@ -289,12 +294,12 @@ class ServoMotorHandler(object):
             console.log(error_message, console.LOG_WARNING, self.stop_pwm_handler.__name__)
             return False
 
-    def set_dict_duty_cycle_consts(self, dict_duty_cycle_consts):
+    def set_dict_duty_cycle__xy_consts(self, dict_duty_cycle_xy_consts):
         """
         This method initializes the duty cycle constants necessary in order to reach the extreme corners of the
         chessboard
 
-        :param dict_duty_cycle_consts: (Dictionary) A dictionary containing the (x, y) values of the upper corners
+        :param dict_duty_cycle_xy_consts: (Dictionary) A dictionary containing the (x, y) values of the upper corners
                 'upper': {
                     'left': {
                         'x': <Number>,
@@ -323,9 +328,9 @@ class ServoMotorHandler(object):
             vertical_mandatory_keys = {'upper', 'lower'}
             horizontal_mandatory_keys = {'left', 'right'}
 
-            if not vertical_mandatory_keys.issubset(dict_duty_cycle_consts) or \
-                    not horizontal_mandatory_keys.issubset(dict_duty_cycle_consts['upper']) or \
-                    not horizontal_mandatory_keys.issubset(dict_duty_cycle_consts['lower']):
+            if not vertical_mandatory_keys.issubset(dict_duty_cycle_xy_consts) or \
+                    not horizontal_mandatory_keys.issubset(dict_duty_cycle_xy_consts['upper']) or \
+                    not horizontal_mandatory_keys.issubset(dict_duty_cycle_xy_consts['lower']):
                 console.log('Invalid dictionary keys. It should contain %s. Also, each key should contain another'
                             'dictionary with the %s keys.' % (
                                 str(vertical_mandatory_keys),
@@ -334,19 +339,19 @@ class ServoMotorHandler(object):
                             console.LOG_WARNING)
                 return False
 
-            self.dict_duty_cycle_consts = dict_duty_cycle_consts
-            if 'percentage' not in self.dict_duty_cycle_consts.keys():
-                self.dict_duty_cycle_consts['percentage'] = 1.7
+            self.dict_duty_cycle_xy_consts = dict_duty_cycle_xy_consts
+            if 'percentage' not in self.dict_duty_cycle_xy_consts.keys():
+                self.dict_duty_cycle_xy_consts['percentage'] = 1.7
                 
         except Exception as error_message:
             console.log(error_message, console.LOG_ERROR)
             return False
 
-    def get_dict_duty_cycle_consts_values(self):
+    def get_dict_duty_cycle_xy_consts_values(self):
         """
-        This method returns the values of dict_duty_cycle_consts in a more easily accessible format
+        This method returns the values of dict_duty_cycle_xy_consts in a more easily accessible format
 
-        :return: (List) a list containing the dict_duty_cycle_consts values in the following order
+        :return: (List) a list containing the dict_duty_cycle_xy_consts values in the following order
         [
             upper_left_x,
             upper_left_y,
@@ -360,17 +365,17 @@ class ServoMotorHandler(object):
         """
         try:
             return [
-                self.dict_duty_cycle_consts['upper']['left']['x'],
-                self.dict_duty_cycle_consts['upper']['left']['y'],
+                self.dict_duty_cycle_xy_consts['upper']['left']['x'],
+                self.dict_duty_cycle_xy_consts['upper']['left']['y'],
 
-                self.dict_duty_cycle_consts['upper']['right']['x'],
-                self.dict_duty_cycle_consts['upper']['right']['y'],
+                self.dict_duty_cycle_xy_consts['upper']['right']['x'],
+                self.dict_duty_cycle_xy_consts['upper']['right']['y'],
 
-                self.dict_duty_cycle_consts['lower']['left']['x'],
-                self.dict_duty_cycle_consts['lower']['left']['y'],
+                self.dict_duty_cycle_xy_consts['lower']['left']['x'],
+                self.dict_duty_cycle_xy_consts['lower']['left']['y'],
 
-                self.dict_duty_cycle_consts['lower']['right']['x'],
-                self.dict_duty_cycle_consts['lower']['right']['y']
+                self.dict_duty_cycle_xy_consts['lower']['right']['x'],
+                self.dict_duty_cycle_xy_consts['lower']['right']['y']
             ]
         except Exception as error_message:
             console.log(error_message, console.LOG_WARNING)
@@ -420,9 +425,9 @@ class ServoMotorHandler(object):
                 console.log('Invalid dictionary keys. They should be %s.' % str(mandatory_keys), console.LOG_WARNING)
                 return False
 
-            # retrieve the dict_duty_cycle_consts values
-            [xul, yul, xur, yur, xll, yll, xlr, ylr] = self.get_dict_duty_cycle_consts_values()
-            p = self.dict_duty_cycle_consts['percentage']
+            # retrieve the dict_duty_cycle_xy_consts values
+            [xul, yul, xur, yur, xll, yll, xlr, ylr] = self.get_dict_duty_cycle_xy_consts_values()
+            p = self.dict_duty_cycle_xy_consts['percentage']
 
             [x, y] = [position['x'], position['y']]
             dict_upper = {
@@ -444,7 +449,27 @@ class ServoMotorHandler(object):
             console.log(error_message, console.LOG_ERROR)
             return False
 
+    def set_duty_cycle_z_consts(self, duty_cycle_z_consts):
+        """
+        This method initializes the duty cycle constants necessary in order to lift or lower a chesspiece
 
+        :param duty_cycle_z_consts: (Dictionary) A dictionary containing the (x, y) values of the upper corners
+                'upper': <Number>
+                'lower': <Number>
+            }
+        :return: Boolean (True or False)
+        """
+        try:
+            mandatory_keys = {'upper', 'lower'}
+
+            if not mandatory_keys.issubset(duty_cycle_z_consts):
+                console.log('Invalid dictionary keys. It should contain %s.' % str(mandatory_keys), console.LOG_WARNING)
+                return False
+
+            self.duty_cycle_z_consts = duty_cycle_z_consts
+        except Exception as error_message:
+            console.log(error_message, console.LOG_ERROR)
+            return False
 # endregion ServoMotor
 
 
