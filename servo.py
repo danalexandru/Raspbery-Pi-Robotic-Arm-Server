@@ -7,6 +7,8 @@ This file has all the methods used to control the servo motors (including all th
 import RPi.GPIO as GPIO
 
 from globals import console
+
+
 # endregion imports
 
 
@@ -15,6 +17,7 @@ class GPIOHandler(object):
     """
     Description: This class is used in order to handle low level use of the GPIO pins
     """
+
     def set_mode(self):
         """
         Description: This method is used to set the GPIO pin mode (The way in which the GPIO pins are mapped and called)
@@ -86,6 +89,8 @@ class GPIOHandler(object):
 
 
 gpio_handler = GPIOHandler()
+
+
 # endregion GPIOHandler
 
 
@@ -94,6 +99,7 @@ class ServoMotorHandler(object):
     """
     This class controls the servo motor functions
     """
+
     def __init__(self, pin=0, frequency=50, duty_cycle=5, lower_limit=2, upper_limit=10, step=0.1):
         """
         This constructor initializes the servo motor object
@@ -114,6 +120,31 @@ class ServoMotorHandler(object):
             self.lower_limit = lower_limit
             self.upper_limit = upper_limit
             self.step = step
+
+            self.dict_duty_cycle_consts = {
+                'upper': {
+                    'left': {
+                        'x': 0,
+                        'y': 0
+                    },
+                    'right': {
+                        'x': 0,
+                        'y': 0
+                    }
+                },
+                'lower': {
+                    'left': {
+                        'x': 0,
+                        'y': 0
+                    },
+                    'right': {
+                        'x': 0,
+                        'y': 0
+                    }
+                },
+                'percentage': 1 / 7
+            }
+
             return
 
         except Exception as error_message:
@@ -257,6 +288,163 @@ class ServoMotorHandler(object):
         except Exception as error_message:
             console.log(error_message, console.LOG_WARNING, self.stop_pwm_handler.__name__)
             return False
+
+    def set_dict_duty_cycle_consts(self, dict_duty_cycle_consts):
+        """
+        This method initializes the duty cycle constants necessary in order to reach the extreme corners of the
+        chessboard
+
+        :param dict_duty_cycle_consts: (Dictionary) A dictionary containing the (x, y) values of the upper corners
+                'upper': {
+                    'left': {
+                        'x': <Number>,
+                        'y': <Number>
+                    },
+                    'right': {
+                        'x': <Number>,
+                        'y': <Number>
+                    }
+                },
+                'lower': {
+                    'left': {
+                        'x': <Number>,
+                        'y': <Number>
+                    },
+                    'right': {
+                        'x': <Number>,
+                        'y': <Number>
+                    }
+                },
+                'percentage': <Number>
+            }
+        :return: Boolean (True or False)
+        """
+        try:
+            vertical_mandatory_keys = {'upper', 'lower'}
+            horizontal_mandatory_keys = {'left', 'right'}
+
+            if not vertical_mandatory_keys.issubset(dict_duty_cycle_consts) or \
+                    not horizontal_mandatory_keys.issubset(dict_duty_cycle_consts['upper']) or \
+                    not horizontal_mandatory_keys.issubset(dict_duty_cycle_consts['lower']):
+                console.log('Invalid dictionary keys. It should contain %s. Also, each key should contain another'
+                            'dictionary with the %s keys.' % (
+                                str(vertical_mandatory_keys),
+                                str(horizontal_mandatory_keys)
+                            ),
+                            console.LOG_WARNING)
+                return False
+
+            self.dict_duty_cycle_consts = dict_duty_cycle_consts
+            if 'percentage' not in self.dict_duty_cycle_consts.keys():
+                self.dict_duty_cycle_consts['percentage'] = 1.7
+                
+        except Exception as error_message:
+            console.log(error_message, console.LOG_ERROR)
+            return False
+
+    def get_dict_duty_cycle_consts_values(self):
+        """
+        This method returns the values of dict_duty_cycle_consts in a more easily accessible format
+
+        :return: (List) a list containing the dict_duty_cycle_consts values in the following order
+        [
+            upper_left_x,
+            upper_left_y,
+            upper_right_x,
+            upper_right_y,
+            lower_left_x,
+            lower_left_y,
+            lower_right_x,
+            lower_right_y
+        ]
+        """
+        try:
+            return [
+                self.dict_duty_cycle_consts['upper']['left']['x'],
+                self.dict_duty_cycle_consts['upper']['left']['y'],
+
+                self.dict_duty_cycle_consts['upper']['right']['x'],
+                self.dict_duty_cycle_consts['upper']['right']['y'],
+
+                self.dict_duty_cycle_consts['lower']['left']['x'],
+                self.dict_duty_cycle_consts['lower']['left']['y'],
+
+                self.dict_duty_cycle_consts['lower']['right']['x'],
+                self.dict_duty_cycle_consts['lower']['right']['y']
+            ]
+        except Exception as error_message:
+            console.log(error_message, console.LOG_WARNING)
+            return False
+
+    @staticmethod
+    def rule_of_three(initial_value, final_value, x):
+        """
+        This method used the rule of three in order to determine the value for x. It is assumed that there is a
+        linear correlation between x and y of the form: a*x + b = y, where x = [1 - 8] and y = [initial_value,
+        final_value].
+
+        :param initial_value: (Number) The y value for x = 1
+        :param final_value: (Number) The y value for x = 8
+        :param x: (Integer) The current x value (Default: [1 - 8])
+        :return: (Number) The y value for x
+        """
+        try:
+            a = (final_value - initial_value) / 7
+            b = initial_value - a
+
+            return a*x + b
+        except Exception as error_message:
+            console.log(error_message, console.LOG_ERROR)
+            return False
+
+    def find_duty_cycles(self, position):
+        """
+        This method determines the duty cycle necessary to reach the current position, both for horizontal and vertical
+        movement. Only one of these values will actually be used in the movement sync (depending on the motor location),
+        but for universality both cases will be calculated.
+
+        :param position: (Dictionary) A dictionary containing the chess piece position on the chessboard
+        {
+            'x': <Integer> (Default: [1 - 8]),
+            'y': <Integer> (Default: [1 - 8])
+        }
+        :return: (Dictionary) The 2 calculated duty cycles for cet motor
+        {
+            'x': <Number>,
+            'y': <Number>
+        }
+        """
+        try:
+            mandatory_keys = {'x', 'y'}
+            if not mandatory_keys.issubset(position):
+                console.log('Invalid dictionary keys. They should be %s.' % str(mandatory_keys), console.LOG_WARNING)
+                return False
+
+            # retrieve the dict_duty_cycle_consts values
+            [xul, yul, xur, yur, xll, yll, xlr, ylr] = self.get_dict_duty_cycle_consts_values()
+            p = self.dict_duty_cycle_consts['percentage']
+
+            [x, y] = [position['x'], position['y']]
+            dict_upper = {
+                'x': self.rule_of_three(xul, xur, x),
+                'y': self.rule_of_three(yul, yur, y)
+            }
+
+            dict_lower = {
+                'x': self.rule_of_three(xll, xlr, x),
+                'y': self.rule_of_three(yll, ylr, y)
+            }
+
+            return {
+                'x': (p * (x - 1) * dict_upper['x']) + ((1 - p) * (x - 1) * dict_lower['x']),
+                'y': (p * (y - 1) * dict_upper['y']) + ((1 - p) * (y - 1) * dict_lower['y'])
+            }
+
+        except Exception as error_message:
+            console.log(error_message, console.LOG_ERROR)
+            return False
+
+
 # endregion ServoMotor
 
 
